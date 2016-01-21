@@ -224,3 +224,11 @@
   background: #eeeeee;
   cursor: pointer;
 }
+ [date-picker] .today{
+    width: 4px;
+	height: 4px;
+	background: #006dcc;
+	-moz-border-radius: 2px;
+	-webkit-border-radius: 2px;
+	border-radius: 2px;
+    }
