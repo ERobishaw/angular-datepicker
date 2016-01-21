@@ -231,4 +231,10 @@
 	-moz-border-radius: 2px;
 	-webkit-border-radius: 2px;
 	border-radius: 2px;
-    }
+}
+.date-picker-date-time{
+         border:1px solid black;
+         -webkit-box-shadow: 10px 10px 27px -4px rgba(0,0,0,0.75);
+        -moz-box-shadow: 10px 10px 27px -4px rgba(0,0,0,0.75);
+        box-shadow: 10px 10px 27px -4px rgba(0,0,0,0.75);
+}
