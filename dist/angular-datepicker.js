@@ -827,6 +827,10 @@ Module.directive('dateTime', ['$compile', '$document', '$filter', 'dateTimeConfi
         }
       }
 
+      function click() {
+          if (picker) clear();
+          else showPicker();
+      }
       function clear() {
         if (picker) {
           picker.remove();
@@ -889,11 +893,13 @@ Module.directive('dateTime', ['$compile', '$document', '$filter', 'dateTimeConfi
             return z;
       }
 
-      function showPicker() {
+      function showPicker(evt) {
 
-        if (picker) {
-          return;
-        }
+          if (picker) {
+            console.log("already picker.")
+            return;
+          }
+          console.log("showpicker");
         // create picker element
         picker = $compile(template)(scope);
         scope.$digest();
@@ -957,9 +963,12 @@ Module.directive('dateTime', ['$compile', '$document', '$filter', 'dateTimeConfi
         picker.bind('mousedown', function (evt) {
           evt.preventDefault();
         });
+
+        evt.preventDefault();
       }
 
-      element.bind('focus', showPicker);
+      //element.bind('focus', showPicker);
+      element.bind('click', click);
       element.bind('blur', clear);
       getTemplate();
     }
