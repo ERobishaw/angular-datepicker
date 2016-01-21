@@ -64,7 +64,6 @@ Module.directive('datePicker', ['datePickerConfig', 'datePickerUtils', function 
       function getDate(name) {
         return datePickerUtils.getDate(scope, attrs, name);
       }
-
       var arrowClick = false,
         tz = scope.tz = attrs.timezone,
         createMoment = datePickerUtils.createMoment,
@@ -96,6 +95,18 @@ Module.directive('datePicker', ['datePickerConfig', 'datePickerUtils', function 
         if (scope.views.indexOf(nextView) !== -1) {
           scope.view = nextView;
         }
+      };
+      scope.showtoday = attrs.showtoday === undefined ? true : attrs.showtoday;
+      scope.today = function () {
+          var date = moment();
+         
+          date = clipDate(date);
+          if (date) {
+              scope.date = date;
+              setDate(date);
+              arrowClick = true;
+              update();
+          }
       };
 
       scope.selectDate = function (date) {
