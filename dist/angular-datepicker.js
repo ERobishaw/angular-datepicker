@@ -1,4 +1,7 @@
 'use strict';
+
+//https://github.com/g00fy-/angular-datepicker
+
 (function(angular){
 /* global moment */
 var Module = angular.module('datePicker', []);
@@ -64,7 +67,6 @@ Module.directive('datePicker', ['datePickerConfig', 'datePickerUtils', function 
       function getDate(name) {
         return datePickerUtils.getDate(scope, attrs, name);
       }
-
       var arrowClick = false,
         tz = scope.tz = attrs.timezone,
         createMoment = datePickerUtils.createMoment,
@@ -96,6 +98,18 @@ Module.directive('datePicker', ['datePickerConfig', 'datePickerUtils', function 
         if (scope.views.indexOf(nextView) !== -1) {
           scope.view = nextView;
         }
+      };
+      scope.showtoday = attrs.showtoday === undefined ? true : attrs.showtoday;
+      scope.today = function () {
+          var date = moment();
+         
+          date = clipDate(date);
+          if (date) {
+              scope.date = date;
+              setDate(date);
+              arrowClick = true;
+              update();
+          }
       };
 
       scope.selectDate = function (date) {
@@ -669,6 +683,8 @@ Module.directive('dateRange', ['$compile', 'datePickerUtils', 'dateTimeConfig', 
     }
   };
 }]);
+
+/**************************************** INPUT.JS ****************************************************/
 /* global moment */
 var PRISTINE_CLASS = 'ng-pristine',
     DIRTY_CLASS = 'ng-dirty';
@@ -861,7 +877,20 @@ Module.directive('dateTime', ['$compile', '$document', '$filter', 'dateTimeConfi
         });
       }
 
+      function getMaxZIndex () {
+            var zIndex,
+                z = 0,
+                all = document.getElementsByTagName('*');
+            for (var i = 0, n = all.length; i < n; i++) {
+                zIndex = document.defaultView.getComputedStyle(all[i],null).getPropertyValue("z-index");
+                zIndex = parseInt(zIndex, 10);
+                z = (zIndex) ? Math.max(z, zIndex) : z;
+            }
+            return z;
+      }
+
       function showPicker() {
+
         if (picker) {
           return;
         }
@@ -897,8 +926,25 @@ Module.directive('dateTime', ['$compile', '$document', '$filter', 'dateTimeConfi
           var pos = element[0].getBoundingClientRect();
           // Support IE8
           var height = pos.height || element[0].offsetHeight;
-          picker.css({ top: (pos.top + height) + 'px', left: pos.left + 'px', display: 'block', position: position });
+         
+          //todo: determine if top + height of picker is below vh and adjust
+          var bodyWidth = body.width();
+          var left = pos.left;
+          
+
+          var zindex = getMaxZIndex() + 1;
+          picker.css({ top: (pos.top + height) + 'px', left: left + 'px', display: 'block', position: position, 'z-index': zindex });
           body.append(picker);
+
+            //now measure the picker width
+          var pickerWidth = picker.width() + 15;
+          //var pickerWidth = 255;    //the better way to do this is to move it after being placed using calculated width
+          var right = left + pickerWidth;
+          if (right > bodyWidth) {
+              left -= (right - bodyWidth);
+              picker.css("left", left + "px");
+          }
+          
         } else {
           // relative
           container = angular.element('<div date-picker-wrapper></div>');
@@ -919,7 +965,7 @@ Module.directive('dateTime', ['$compile', '$document', '$filter', 'dateTimeConfi
     }
   };
 }]);
-
+/***********************************************************************************************/
 angular.module('datePicker').run(['$templateCache', function($templateCache) {
 $templateCache.put('templates/datepicker.html',
     "<div ng-switch=\"view\">\r" +
@@ -934,7 +980,9 @@ $templateCache.put('templates/datepicker.html',
     "\n" +
     "        <th ng-click=\"prev()\">&lsaquo;</th>\r" +
     "\n" +
-    "        <th colspan=\"5\" class=\"switch\" ng-click=\"setView('month')\" ng-bind=\"date|mFormat:'YYYY MMMM':tz\"></th>\r" +
+    "        <th colspan=\"{{showtoday ? 4 : 5}}\" class=\"switch\" ng-click=\"setView('month')\" ng-bind=\"date|mFormat:'YYYY MMMM':tz\"></th>\r" +
+    "\n" +
+    "        <th nf-if=\"showtoday\" ng-click=\"today()\"><div class=\"today\"></div></th>\r" +
     "\n" +
     "        <th ng-click=\"next()\">&rsaquo;</i></th>\r" +
     "\n" +
